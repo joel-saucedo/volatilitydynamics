@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from scipy.stats import norm
 from scipy.optimize import brentq
 
@@ -31,36 +32,25 @@ def historical_volatility(prices):
     log_returns = np.diff(np.log(prices))
     sigma_hist = np.std(log_returns) * np.sqrt(252)  # Annualize
     return sigma_hist
-  
-'''
-# Example usage
-S = 100  # Current stock price
-K = 100  # Strike price
-T = 1    # Time to maturity (in years)
-r = 0.05 # Risk-free rate
-market_price = 10  # Observed market price of the option
 
-# Calculate implied volatility
-sigma_imp = implied_volatility(market_price, S, K, T, r)
-print(f"Implied Volatility: {sigma_imp}")
+# Load stock data
+stock_data = pd.read_csv('historical_prices.csv')
+# Calculate historical volatility
+historical_vol = historical_volatility(stock_data['Close'])
 
-# Example historical prices (daily closing prices)
-prices = np.random.normal(loc=100, scale=10, size=252)  # Example data
-sigma_hist = historical_volatility(prices)
-print(f"Historical Volatility: {sigma_hist}")
-'''
+# Load options data
+options_data = pd.read_csv('option_market_data.csv')
 
-# Example of reading processed data
-price_data = pd.read_csv('historical_prices.csv')  # Assuming a CSV with a 'Close' column
-option_data = pd.read_csv('option_market_data.csv')  # Assuming CSV with 'MarketPrice', 'Strike', 'Maturity'
+# Assuming you have specific values for S (current stock price) and r (risk-free rate)
+# These could be constants or derived from another part of your analysis
+S = stock_data['Close'].iloc[-1]  # Example: using the last available stock price
+r = 0.05  # Example: a given risk-free rate, you may need to adjust this based on current rates
 
-# Processing historical volatility
-historical_vol = historical_volatility(price_data['Close'])
-
-# Processing implied volatility for each option in the dataset
-option_data['ImpliedVolatility'] = option_data.apply(
-    lambda row: implied_volatility(row['MarketPrice'], S, row['Strike'], row['Maturity'], r),
-    axis=1
+# Calculate implied volatility for each option
+options_data['ImpliedVolatility'] = options_data.apply(
+    lambda row: implied_volatility(row['MarketPrice'], S, row['Strike'], row['Maturity'] / 365, r),
+    axis=1  # Ensure 'Maturity' is in years; adjust if your data is in days
 )
 
-print(option_data)
+print(f"Historical Volatility: {historical_vol}")
+print(options_data[['MarketPrice', 'Strike', 'Maturity', 'ImpliedVolatility']])
