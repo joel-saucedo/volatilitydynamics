@@ -9,3 +9,5 @@ Objectives:
 4. Post process the obatined data from the first 3 operations to create volatility signals and parametrizations in preparation for the final integration of the model.
 
 5. We argue that the combined model, which incorporates diverse volatility signals, reduces forecast error through diversification and a more comprehensive capture of market dynamics.
+
+Needs: Postprocessor for Historical Data Aquisition, Option Market Data, High-Frequency Trading Data
